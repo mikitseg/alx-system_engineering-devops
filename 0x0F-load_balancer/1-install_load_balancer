@@ -17,11 +17,11 @@ loadbl_config=\
     timeout server 15s
     timeout http-request 10s
 
-frontend iamitsfoss-frontend
+frontend mikitsg.tech-frontend
     bind *:80
-    default_backend iamitsfoss-backend
+    default_backend mikitseg.tech-backend
 
-backend iamitsfoss-backend
+backend mikitseg-backend
     balance roundrobin
     server 196966-web-01 100.26.221.164:80 check
     server 196966-web-02 54.209.95.25:80 check
