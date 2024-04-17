@@ -205,4 +205,4 @@ I use curl to query `web-01.holberton.online`, and since my firewall is forward
 
 
 
-Miki
+Mikitseg
