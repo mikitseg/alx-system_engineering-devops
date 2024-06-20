@@ -1,39 +1,36 @@
 #!/usr/bin/python3
+
 """
-This module defines a function to retrieve the number
-of subscribers for a given subreddit using the Reddit API.
+Query a subreddit and return the number of
+total subscribers in that subredit
 """
 
-import requests
+from requests import get
+from sys import argv
 
 
-def number_of_subscribers(subreddit):
+headers = {
+    "User-Agent": "Of course I had to use a custom User-Agent",
+    "X-Forwared-For": "iamthecavalry"
+}
+
+
+def number_of_subscribers(subreddit: str) -> int:
     """
-    Retrieves the number of subscribers for a given
-    subreddit using the Reddit API.
-
-    Args:
-        subreddit (str): The name of the subreddit.
-
-    Returns:
-        int: The number of subscribers if the subreddit is valid, 0 otherwise.
+    Query the subreddit and return the number of
+    Active subs. If its an invalid subredit, return 0
     """
-    # Construct the URL for the subreddit's about page
-    url = f'http://www.reddit.com/r/{subreddit}/about.json'
-
-    # Set a custom User-Agent header to avoid rate limiting
-    headers = {'User-Agent': 'My User Agent 1.0'}
-
-    # Send a GET request to the Reddit API
-    response = requests.get(url, headers=headers)
-
-    # Check if the request was successful
-    if response.status_code == 200:
-        # Parse the JSON response
-        data = response.json()
-
-        # Extract and return the number of subscribers
-        return data.get('data').get('subscribers')
-    else:
-        # If the subreddit is invalid or the request fails, return 0
+    response = get("https://www.reddit.com/r/{}/about.json".format(subreddit),
+                   headers=headers)
+    data = response.json()
+    try:
+        if 'error' in data.keys():
+            return 0
+        else:
+            return data['data']['subscribers']
+    except Exception as e:
         return 0
+
+
+if __name__ == "__main__":
+    print(number_of_subscribers(argv[1]))

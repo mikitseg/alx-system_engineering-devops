@@ -1,45 +1,36 @@
 #!/usr/bin/python3
 
 """
-This module defines a function to query the Reddit API and
-print the titles of the first 10 hot posts for a given subreddit.
+query the Reddit API and prints the titles
+of the first 10 hot posts listed for a given subreddit.
 """
 
-import requests
+from requests import get
+from sys import argv
 
 
-def top_ten(subreddit):
+def top_ten(subreddit: str) -> None:
     """
-    Queries the Reddit API and prints the titles of the
-    first 10 hot posts for a given subreddit.
-
+    function that does the heavy lifting for us
     Args:
-        subreddit (str): The name of the subreddit.
-
-    Returns:
-        None
+        subreddit (str) -> The subreddit to query
+    Returns: The top 10 hots for that subreddit
     """
-    # Construct the URL for the subreddit's hot posts
-    url = f"https://www.reddit.com/r/{subreddit}/hot.json"
+    headers = {
+        "User-Agent": "Marvel's Agents of Shield/21",
+        "X-Forwared-For": "Phil J. Coulson"
+    }
 
-    # Set a custom User-Agent header to avoid rate limiting
-    headers = {'User-Agent': 'Custom Reddit Top Ten Posts'}
+    request_url = "https://www.reddit.com/r/{}/hot.json".format(subreddit)
 
     try:
-        # Send a GET request to the Reddit API
-        response = requests.get(url, headers=headers, allow_redirects=False)
-
-        # Check if the request was successful
-        if response.status_code == 200:
-            # Extract the data from the response
-            data = response.json().get('data', {}).get('children', [])
-
-            # Print the titles of the first 10 hot posts
-            for post in data[:10]:
-                print(post['data']['title'])
-        else:
-            # If the subreddit is invalid or the request fails, print None
-            print("None")
-    except Exception as e:
-        # Print None if an exception occurs
+        response = get(request_url, headers=headers,
+                       allow_redirects=False).json()
+        data = response['data']['children']
+        [print(post['data']['title']) for post in data[:10]]
+    except Exception:
         print("None")
+
+
+if __name__ == "__main__":
+    (top_ten(argv[1]))
