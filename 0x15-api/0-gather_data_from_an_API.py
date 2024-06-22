@@ -1,22 +1,43 @@
 #!/usr/bin/python3
-"""Python script that returns about his/her TODO list progress
-for a given employee ID.
-- uses requests module
-"""
+"""A simple module to make API Calls
+To a mockup API server and return the
+Responses. Then print them out to standard output
+Usage: ./0-gather-data_from_an_API <ID>
+Where <ID> is the employee ID for whom we want to list
+The tasks"""
 
-import requests
-import sys
+from requests import get
+from sys import argv
+
+headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+    "User-Agent": "Thing Gecko/20100101 Firefox/102.0"
+}
+base_url = "https://jsonplaceholder.typicode.com/users/"
+
+
+def get_task_status(user_id: str) -> None:
+    """
+    Get the task status for a certain user
+    Args:
+        user_id (str): The user id of the user
+    """
+    # lets first get the name of Employee
+    emp_name = get("{}{}".format(base_url, user_id)).json().get("name")
+    full_url = "{}{}/todos/".format(base_url, user_id)
+    response = get(full_url, headers=headers).json()
+    # lets get the total number of tasks shall we?
+    total_tasks = len(response)
+
+    # How about done tasks
+    done_tasks = [task['title'] for task in response
+                  if task['completed']]
+    done_tasks_count = len(done_tasks)
+    print("Employee {} is done with tasks({}/{}):".format(
+        emp_name, done_tasks_count, total_tasks))
+    [print("\t {}".format(task)) for task in done_tasks]
+
 
 if __name__ == "__main__":
-    url = "https://jsonplaceholder.typicode.com/"
-    user = requests.get(url + "users/{}".format(sys.argv[1])).json()
-    todos = requests.get(url + "todos", params={"userId": sys.argv[1]}).json()
-
-    completed = list()
-    for t in todos:
-        if t.get("completed") is True:
-            completed.append(t.get("title"))
-    print("Employee {} is done with tasks({}/{}):".format(
-        user.get("name"), len(completed), len(todos)))
-    for c in completed:
-        print(f"\t {c}")
+    get_task_status(argv[1])
